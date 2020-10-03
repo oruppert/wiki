@@ -356,8 +356,7 @@ wiki name must be available via `match-string'."
 
 (defun wiki-maybe ()
   "Maybe turn `wiki-mode' on for this file.
-This happens when the file's directory is a member of
-`wiki-directories'."
+This happens when the buffer-file-name matches `wiki-name-regexp'."
   (if (string-match wiki-name-regexp buffer-file-name)
       (wiki-mode 1)
     (wiki-mode 0)))
