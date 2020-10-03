@@ -140,7 +140,7 @@ If set to nil, publishing is disabled."
                  (const :tag "Disable publishing" nil)))
 
 ;; Paste from rcirc, whatever
-(defvar thing-at-point-url-regexp
+(defvar wiki-url-regexp
   (concat
    "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
    "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
@@ -181,7 +181,7 @@ If set to nil, publishing is disabled."
    ;; quoted/indented paragraphs
    '("<p>\n:\\(\\([^\n]\n?\\)+\\)" . "<blockquote>\n<p>\n\\1</blockquote>\n")
    ;; URL
-   (cons thing-at-point-url-regexp
+   (cons wiki-url-regexp
 	 "<a href=\"\\&\">\\&</a>")
    ;; email addresses without mailto
    (cons (if (boundp 'goto-address-mail-regexp)
@@ -339,12 +339,12 @@ possible value for `wiki-include-function'."
 (defun wiki-no-name-p ()
   "Return non-nil if point is within a URL.
 This function is faster than checking using `thing-at-point-looking-at'
-and `thing-at-point-url-regexp'.  Override this function if you do not
+and `wiki-url-regexp'.  Override this function if you do not
 like it."
   (let ((pos (point)))
     (and (re-search-backward "[]\t\n \"'()<>[^`{}]" nil t)
 	 (goto-char (match-end 0))
-	 (looking-at thing-at-point-url-regexp)
+	 (looking-at wiki-url-regexp)
 	 (<= pos (match-end 0)))))
 
 (defun wiki-name-p (&optional shortcut)
