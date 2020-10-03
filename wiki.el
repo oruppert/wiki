@@ -139,6 +139,9 @@ If set to nil, publishing is disabled."
   :type '(choice directory
                  (const :tag "Disable publishing" nil)))
 
+(defvar thing-at-point-url-regexp
+  "[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)")
+
 (defcustom wiki-pub-rules
   (list
    ;; inhibit HTML
