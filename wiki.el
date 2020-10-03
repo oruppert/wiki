@@ -495,14 +495,8 @@ This relies on `wiki-existing-names'."
 ;; Following hyperlinks
 
 (defun wiki-follow-name (name)
-  "Follow the link NAME by invoking `wiki-follow-name-action'.
-If NAME is part a key in the alist returned by `wiki-existing-names',
-then the corresponding filename is used instead of NAME."
-  (let ((file (cdr (assoc name (wiki-existing-names)))))
-    (if file
-	(funcall wiki-follow-name-action file)
-      (funcall wiki-follow-name-action
-	       (concat name (if wiki-extension (concat "." wiki-extension) ""))))))
+  "Follow the link NAME by invoking `wiki-follow-name-action'."
+  (funcall wiki-follow-name-action name))
   
 (defun wiki-follow-name-at-point ()
   "Find wiki name at point.
