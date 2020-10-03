@@ -279,15 +279,6 @@ This is used to remove highlighting from former WikiNames."
   :group 'wiki-link
   :type 'regexp)
 
-(defcustom wiki-highlight-name-exists 'wiki-name-exists-p
-  "Function to call in order to determine wether a WikiName exists already.
-This is used when highlighting words using `wiki-highlight-match': If
-the word is a non-existing wiki-name, a question mark is appended.
-
-See `wiki-name-regexp' for possible names considered a WikiName."
-  :group 'wiki-link
-  :type 'function)
-
 (defcustom wiki-follow-name-action 'find-file
   "Function to use when following references.
 The function should accept a string parameter, the WikiName.
@@ -616,12 +607,10 @@ The list of existing names is recomputed using `wiki-existing-names'."
 `wiki-name-p' is not called again to verify the latest match.
 Existing WikiNames are highlighted using face `info-xref'."
   (save-match-data
-    (let ((with-glyph (not (funcall wiki-highlight-name-exists
-				    (match-string 0)))))
-      (wiki-make-extent (match-beginning 0)
-			(match-end 0)
-			wiki-local-map
-			with-glyph))))
+    (wiki-make-extent (match-beginning 0)
+                      (match-end 0)
+                      wiki-local-map
+                      nil)))
 
 (defun wiki-highlight-word-wrapper (&optional start end len)
   "Highlight the current word if it is a WikiName.
