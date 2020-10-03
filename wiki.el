@@ -358,8 +358,7 @@ wiki name must be available via `match-string'."
   "Maybe turn `wiki-mode' on for this file.
 This happens when the file's directory is a member of
 `wiki-directories'."
-  (if (member (file-name-directory buffer-file-name)
-              wiki-directories)
+  (if (string-match wiki-name-regexp buffer-file-name)
       (wiki-mode 1)
     (wiki-mode 0)))
 
