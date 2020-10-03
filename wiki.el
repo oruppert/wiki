@@ -139,8 +139,27 @@ If set to nil, publishing is disabled."
   :type '(choice directory
                  (const :tag "Disable publishing" nil)))
 
+;; Paste from rcirc, whatever
 (defvar thing-at-point-url-regexp
-  "[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)")
+  (concat
+   "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
+   "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
+   "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
+   (if (string-match "[[:digit:]]" "1") ;; Support POSIX?
+       (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
+	     (punct "!?:;.,"))
+	 (concat
+	  "\\(?:"
+	  ;; Match paired parentheses, e.g. in Wikipedia URLs:
+	  "[" chars punct "]+" "(" "[" chars punct "]+" "[" chars "]*)" "[" chars "]"
+	  "\\|"
+	  "[" chars punct     "]+" "[" chars "]"
+	  "\\)"))
+     (concat ;; XEmacs 21.4 doesn't support POSIX.
+      "\\([-a-z0-9_=!?#$@~%&*+\\/:;.,]\\|\\w\\)+"
+      "\\([-a-z0-9_=#$@~%&*+\\/]\\|\\w\\)"))
+   "\\)")
+  "Regexp matching URLs.")
 
 (defcustom wiki-pub-rules
   (list
