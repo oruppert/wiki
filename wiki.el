@@ -924,14 +924,9 @@ WITH-GLYPH non-nil will add a question-mark after the extent."
   "Delete all extents/overlays created by `wiki-make-extent'.
 If optional arguments START and END are given, only the overlays in that
 region will be deleted."
-  (let ((overlays (overlays-in (or start (point-min))
-			       (or end (point-max))))
-	overlay)
-    (while overlays
-      (setq overlay (car overlays)
-	    overlays (cdr overlays))
-      (when (overlay-get overlay 'wikiname)
-	(delete-overlay overlay)))))
+  (unless start (setq start (point-min)))
+  (unless end (setq end (point-min)))
+  (remove-overlays start end 'wikiname t))
 
 (provide 'wiki)
 
