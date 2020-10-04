@@ -609,10 +609,9 @@ The list of existing names is recomputed using `wiki-existing-names'."
 `wiki-name-p' is not called again to verify the latest match.
 Existing WikiNames are highlighted using face `info-xref'."
   (save-match-data
-    (wiki-make-extent (match-beginning 0)
+    (wiki-make-overlay (match-beginning 0)
                       (match-end 0)
-                      wiki-local-map
-                      nil)))
+                      wiki-local-map)))
 
 (defun wiki-highlight-word-wrapper (&optional start end len)
   "Highlight the current word if it is a WikiName.
@@ -903,12 +902,11 @@ See `wiki-pub-rules'."
 	      (concat (wiki-page-name) 
 		      wiki-pub-file-name-suffix))))
 
-;; Emacs/XEmacs compatibility layer
+;; Overlays
 
-(defun wiki-make-extent (from to map with-glyph)
-  "Make an extent for the range [FROM, TO) in the current buffer.
-MAP is the local keymap to use, if any.
-WITH-GLYPH non-nil will add a question-mark after the extent."
+(defun wiki-make-overlay (from to map)
+  "Make an overlay for the range [FROM, TO) in the current buffer.
+MAP is the local keymap to use, if any."
   (let ((overlay (make-overlay from to)))
     (overlay-put overlay 'face 'info-xref)
     (overlay-put overlay 'mouse-face 'highlight)
@@ -916,17 +914,21 @@ WITH-GLYPH non-nil will add a question-mark after the extent."
       (overlay-put overlay 'local-map map))
     (overlay-put overlay 'evaporate t)
     (overlay-put overlay 'wikiname t)
-    (when with-glyph
-      (overlay-put overlay 'after-string "?"))
     overlay))
 
+
 (defun wiki-remove-overlays (&optional start end)
-  "Delete all extents/overlays created by `wiki-make-extent'.
+  "Delete all extents/overlays created by `wiki-make-overlay'.
 If optional arguments START and END are given, only the overlays in that
 region will be deleted."
   (unless start (setq start (point-min)))
-  (unless end (setq end (point-min)))
-  (remove-overlays start end 'wikiname t))
+  (unless end (setq end (point-max)))
+  (let (overlay (overlays (overlays-in start end)))
+    (while overlays
+      (setq overlay (car overlays)
+	    overlays (cdr overlays))
+      (when (overlay-get overlay 'wikiname)
+	(delete-overlay overlay)))))
 
 (provide 'wiki)
 
