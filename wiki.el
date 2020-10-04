@@ -428,7 +428,7 @@ All wikis reside in `wiki-directories'.
 (add-hook 'wiki-mode-on-hook (lambda () (setq indent-tabs-mode nil)))
 
 (add-hook 'wiki-mode-off-hook 'wiki-deinstall)
-(add-hook 'wiki-mode-off-hook 'wiki-delete-extents)
+(add-hook 'wiki-mode-off-hook 'wiki-remove-overlays)
 
 (when (fboundp 'goto-address)
   (add-hook 'wiki-highlight-buffer-hook 'goto-address))
@@ -585,10 +585,10 @@ See `wiki-name-p'."
 
 (defun wiki-highlight-buffer ()
   "Highlight the buffer.
-Delete all existing wiki highlighting using `wiki-delete-extents' and
+Delete all existing wiki highlighting using `wiki-remove-overlays' and
 call all functions in `wiki-highlight-buffer-hook'."
   (interactive)
-  (wiki-delete-extents)
+  (wiki-remove-overlays)
   (run-hooks 'wiki-highlight-buffer-hook))
 
 (defun wiki-highlight-wiki-names ()
@@ -596,7 +596,7 @@ call all functions in `wiki-highlight-buffer-hook'."
 This uses `wiki-highlight-match' to do the job.
 The list of existing names is recomputed using `wiki-existing-names'."
   (interactive)
-  (wiki-delete-extents)
+  (wiki-remove-overlays)
   (save-excursion
     (goto-char (point-min))
     (when (wiki-name-p)
@@ -631,13 +631,13 @@ position."
     (goto-char pos)
     (save-match-data
       (cond ((wiki-name-p); found a wiki name
-	     (wiki-delete-extents (match-beginning 0) (match-end 0))
+	     (wiki-remove-overlays (match-beginning 0) (match-end 0))
 	     (wiki-highlight-match))
 	    ;; The following code makes sure that when a WikiName is
 	    ;; edited such that is no longer is a wiki name, the
 	    ;; extent/overlay is removed.
 	    ((thing-at-point-looking-at wiki-name-no-more)
-	     (wiki-delete-extents (match-beginning 0) (match-end 0)))))))
+	     (wiki-remove-overlays (match-beginning 0) (match-end 0)))))))
 
 ;; Parsing all files into a directed graph
 
@@ -920,7 +920,7 @@ WITH-GLYPH non-nil will add a question-mark after the extent."
       (overlay-put overlay 'after-string "?"))
     overlay))
 
-(defun wiki-delete-extents (&optional start end)
+(defun wiki-remove-overlays (&optional start end)
   "Delete all extents/overlays created by `wiki-make-extent'.
 If optional arguments START and END are given, only the overlays in that
 region will be deleted."
