@@ -367,9 +367,10 @@ wiki name must be available via `match-string'."
 (defun wiki-maybe ()
   "Maybe turn `wiki-mode' on for this file.
 This happens when the buffer-file-name matches `wiki-name-regexp'."
-  (if (string-match wiki-name-regexp buffer-file-name)
-      (wiki-mode 1)
-    (wiki-mode 0)))
+  (let ((case-fold-search nil))
+    (if (string-match wiki-name-regexp buffer-file-name)
+	(wiki-mode 1)
+      (wiki-mode 0))))
 
 (add-hook 'find-file-hooks 'wiki-maybe)
 
