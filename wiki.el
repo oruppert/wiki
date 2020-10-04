@@ -63,16 +63,6 @@
 
 ;; Find out more: Take a look at http://c2.com/cgi/wiki?StartingPoints
 
-;;; XEmacs
-
-;; XEmacs users will have to get easy-mmode.el, I'm afraid.  You should
-;; be able to get easy-mmode.el from a web site carrying the Emacs
-;; sources.  It loads fine, so that shouldn't be a problem.  Put
-;; `easy-mmode' somewhere in your load-path and install as follows:
-
-;; (require 'easy-mmode)
-;; (require 'wiki)
-
 ;;; What about a Major Mode?
 
 ;; By default, wiki files will be in `fundamental-mode'.  I prefer to be
@@ -389,9 +379,7 @@ This happens when the buffer-file-name matches `wiki-name-regexp'."
 (defvar wiki-local-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "RET") 'wiki-follow-name-at-point)
-    (if (featurep 'xemacs)
-	(define-key map (kbd "<button2>") 'wiki-follow-name-at-mouse)
-      (define-key map (kbd "<mouse-2>") 'wiki-follow-name-at-mouse))
+    (define-key map (kbd "<mouse-2>") 'wiki-follow-name-at-mouse)
     map)
   "Local keymap used by wiki minor mode while on a WikiName.")
 
@@ -920,60 +908,30 @@ See `wiki-pub-rules'."
 (defun wiki-make-extent (from to map with-glyph)
   "Make an extent for the range [FROM, TO) in the current buffer.
 MAP is the local keymap to use, if any.
-WITH-GLYPH non-nil will add a question-mark after the extent.
-XEmacs uses `make-extent', Emacs uses `make-overlay'."
-  ;; I don't use (fboundp 'make-extent) because of (require 'lucid)
-  (if (featurep 'xemacs)
-      ;; Extents for XEmacs
-      (let ((extent (make-extent from to)))
-	(set-extent-property extent 'face 'info-xref)
-	(set-extent-property extent 'mouse-face 'highlight)
-	(when map
-	  (set-extent-property extent 'keymap map))
-	(set-extent-property extent 'evaporate t)
-	(set-extent-property extent 'wikiname t)
-	(when with-glyph
-	  (set-extent-property extent 'end-glyph (make-glyph '("?"))))
-	extent)
-    ;; Overlays for Emacs
-    (let ((overlay (make-overlay from to)))
-      (overlay-put overlay 'face 'info-xref)
-      (overlay-put overlay 'mouse-face 'highlight)
-      (when map
-	(overlay-put overlay 'local-map map))
-      (overlay-put overlay 'evaporate t)
-      (overlay-put overlay 'wikiname t)
-      (when with-glyph
-	(overlay-put overlay 'after-string "?"))
-      overlay)))
+WITH-GLYPH non-nil will add a question-mark after the extent."
+  (let ((overlay (make-overlay from to)))
+    (overlay-put overlay 'face 'info-xref)
+    (overlay-put overlay 'mouse-face 'highlight)
+    (when map
+      (overlay-put overlay 'local-map map))
+    (overlay-put overlay 'evaporate t)
+    (overlay-put overlay 'wikiname t)
+    (when with-glyph
+      (overlay-put overlay 'after-string "?"))
+    overlay))
 
 (defun wiki-delete-extents (&optional start end)
   "Delete all extents/overlays created by `wiki-make-extent'.
 If optional arguments START and END are given, only the overlays in that
-region will be deleted.  XEmacs uses extents, Emacs uses overlays."
-  (if (featurep 'xemacs)
-      (let ((extents (extent-list nil start end))
-	    extent)
-	(while extents
-	  (setq extent (car extents)
-		extents (cdr extents))
-	  (when (extent-property extent 'wikiname)
-	    (delete-extent extent))))
-    (let ((overlays (overlays-in (or start (point-min))
-				 (or end (point-max))))
-	  overlay)
-      (while overlays
-	(setq overlay (car overlays)
-	      overlays (cdr overlays))
-	(when (overlay-get overlay 'wikiname)
-	  (delete-overlay overlay))))))
-
-(unless (fboundp 'time-less-p)
-  (defun time-less-p (t1 t2)
-    "Say whether time T1 is less than time T2."
-    (or (< (car t1) (car t2))
-	(and (= (car t1) (car t2))
-	     (< (nth 1 t1) (nth 1 t2))))))
+region will be deleted."
+  (let ((overlays (overlays-in (or start (point-min))
+			       (or end (point-max))))
+	overlay)
+    (while overlays
+      (setq overlay (car overlays)
+	    overlays (cdr overlays))
+      (when (overlay-get overlay 'wikiname)
+	(delete-overlay overlay)))))
 
 (provide 'wiki)
 
