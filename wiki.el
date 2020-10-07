@@ -9,6 +9,7 @@
 
 (require 'info); for info-xref face
 (require 'thingatpt); for thing-at-point-looking-at and other things
+(require 'rcirc); for rcirc-url-regexp
 
 ;; Options
 
@@ -53,13 +54,35 @@ See `wiki-follow-name-at-point'."
 (define-key wiki-name-map (kbd "RET") 'wiki-follow-name-at-point)
 (define-key wiki-name-map (kbd "<mouse-2>") 'wiki-follow-name-at-mouse)
 
+(defun wiki-follow-url-at-point ()
+  (interactive)
+  (if (thing-at-point-looking-at rcirc-url-regexp)
+      (browse-url-chromium (match-string 0))
+    (error "Point not at a URL.")))
+
+(defun wiki-follow-url-at-mouse (event)
+  "Find wiki name at the mouse position.
+See `wiki-follow-name-at-point'."
+  (interactive "e")
+  (save-excursion
+    (mouse-set-point event)
+    (wiki-follow-url-at-point)))
+
+(defvar wiki-url-map (make-sparse-keymap))
+(define-key wiki-url-map (kbd "RET") 'wiki-follow-url-at-point)
+(define-key wiki-url-map (kbd "<mouse-2>") 'wiki-follow-url-at-mouse)
+
 (defun wiki-mode ()
   (interactive)
   (push 'mouse-face font-lock-extra-managed-props)
   (push 'keymap font-lock-extra-managed-props)
   (font-lock-add-keywords
    nil
-   `((,wiki-name-regexp
+   `((,rcirc-url-regexp
+      (0 '(face info-xref
+		mouse-face highlight
+		keymap ,wiki-url-map)))
+     (,wiki-name-regexp
       (0 '(face info-xref
 		mouse-face highlight
 		keymap ,wiki-name-map))))))
